@@ -64,8 +64,8 @@ FROM(
 		ON (
 			select *
 			from mtanco.mt_retail_npath
-			where customerid in (
-				select distinct customerid
+			where customerid || '_' || sessionid in (
+				select distinct customerid || '_' || sessionid
 				from beehive.retail_console
 				where cart = 'SWITCH'
 			)
@@ -97,8 +97,8 @@ FROM(
 		ON (
 			select *
 			from mtanco.mt_retail_npath
-			where customerid in (
-				select distinct customerid
+			where customerid || '_' || sessionid in (
+				select distinct customerid || '_' || sessionid
 				from beehive.retail_console
 				where cart = 'XBOX'
 			)
