@@ -1,7 +1,6 @@
 /* Build markov chain off of entire data set */
 
---only run once for time :)
-/*DROP TABLE mtanco.all_mc;
+DROP TABLE mtanco.all_mc;
 CREATE TABLE mtanco.all_mc AS (
 	SELECT '[' || page1 || ',' || page2 || ']' as path
 		, COUNT(*) * 1.00 / SUM(COUNT(*)) 
@@ -26,37 +25,10 @@ CREATE TABLE mtanco.all_mc AS (
 	) AS np
 	GROUP BY page1, page2
 ) WITH DATA NO PRIMARY INDEX ;
-*/
 
---name=markov_chains
-select * 
-from mtanco.all_mc
-where cnt > 0;
+DROP TABLE mtanco.switch_mc;
+CREATE TABLE mtanco.switch_mc AS (
 
-/*Markov chains for specfic types of customers*/
-
---name=cart_counts
-select * from (
-	select 'Switch' as nm, count(distinct customerid) as cnt
-	from beehive.retail_console
-	where cart = 'SWITCH'
-	
-	UNION ALL
-	
-	select 'Xbox' as nm, count(distinct customerid) as cnt
-	from beehive.retail_console
-	where cart = 'XBOX'
-) as cnts;
- 
--- nm     cnt      
--- ------ -------- 
--- Xbox    8495.00
--- Switch 12852.00
-
-
---name=switch_mc
-SELECT *
-FROM(
 	SELECT '[' || page1 || ',' || page2 || ']' as path
 		, COUNT(*) * 1.00 / SUM(COUNT(*)) 
 			OVER( PARTITION BY page1 ) AS cnt
@@ -84,12 +56,12 @@ FROM(
 			) 
 	) AS np
 	GROUP BY page1, page2
-) AS agg
-where cnt > 0;
 
---name=xbox_mc
-SELECT *
-FROM(
+) WITH DATA NO PRIMARY INDEX ;
+
+DROP TABLE mtanco.xbox_mc;
+CREATE TABLE mtanco.xbox_mc AS (
+
 	SELECT '[' || page1 || ',' || page2 || ']' as path
 		, COUNT(*) * 1.00 / SUM(COUNT(*)) 
 			OVER( PARTITION BY page1 ) AS cnt
@@ -117,5 +89,5 @@ FROM(
 			) 
 	) AS np
 	GROUP BY page1, page2
-) AS agg
-where cnt > 0;
+
+) WITH DATA NO PRIMARY INDEX ;
