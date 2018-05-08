@@ -125,3 +125,36 @@ GROUP BY page1, page2;
 -- SEARCH       VIEW PRODUCT 3.00 0.38
 -- VIEW PRODUCT SEARCH       4.00 0.50
 -- VIEW PRODUCT VIEW PRODUCT 4.00 0.50
+
+--name=markov_chains
+SELECT '[' || page1 || ',' || page2 || ']' as path
+	, COUNT(*) * 1.00 / SUM(COUNT(*)) OVER( PARTITION BY page1 ) AS cnt
+FROM nPath ( 
+	ON (
+		select *
+		from beehive.retail_console
+		where customerid = 498073 
+		and sessionid = 2
+	) AS "input1"
+		PARTITION BY customerid,sessionid 
+		ORDER BY tstamp
+	USING  
+		Mode (OVERLAPPING) 
+		Pattern ('A.A') 
+		Symbols ( 
+			TRUE as A
+		) 
+		Result (
+			first(page of A) as page1
+			,last(page of A) as page2
+		) 
+) AS np
+GROUP BY page1, page2;
+
+-- path                        cnt  
+-- --------------------------- ---- 
+-- [SEARCH,SEARCH]             0.62
+-- [SEARCH,VIEW PRODUCT]       0.38
+-- [VIEW PRODUCT,SEARCH]       0.50
+-- [VIEW PRODUCT,VIEW PRODUCT] 0.50
+
