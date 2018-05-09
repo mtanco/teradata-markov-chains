@@ -2,7 +2,7 @@
 
 DROP TABLE mtanco.all_mc;
 CREATE TABLE mtanco.all_mc AS (
-	SELECT '[' || page1 || ',' || page2 || ']' as path
+	SELECT '[' || page1 || ', ' || page2 || ']' as path
 		, COUNT(*) * 1.00 / SUM(COUNT(*)) 
 			OVER( PARTITION BY page1 ) AS cnt
 	FROM nPath ( 
@@ -29,7 +29,7 @@ CREATE TABLE mtanco.all_mc AS (
 DROP TABLE mtanco.switch_mc;
 CREATE TABLE mtanco.switch_mc AS (
 
-	SELECT '[' || page1 || ',' || page2 || ']' as path
+	SELECT '[' || page1 || ', ' || page2 || ']' as path
 		, COUNT(*) * 1.00 / SUM(COUNT(*)) 
 			OVER( PARTITION BY page1 ) AS cnt
 	FROM nPath ( 
@@ -62,7 +62,7 @@ CREATE TABLE mtanco.switch_mc AS (
 DROP TABLE mtanco.xbox_mc;
 CREATE TABLE mtanco.xbox_mc AS (
 
-	SELECT '[' || page1 || ',' || page2 || ']' as path
+	SELECT '[' || page1 || ', ' || page2 || ']' as path
 		, COUNT(*) * 1.00 / SUM(COUNT(*)) 
 			OVER( PARTITION BY page1 ) AS cnt
 	FROM nPath ( 
