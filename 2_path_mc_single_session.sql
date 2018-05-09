@@ -40,7 +40,7 @@ FROM nPath (
 		ORDER BY tstamp
 	USING  
 		Mode (NONOVERLAPPING) 
-		Pattern ('A*') 
+		Pattern ('A*')
 		Symbols ( 
 			TRUE as A
 		) 
@@ -113,7 +113,7 @@ FROM nPath (
 		ORDER BY tstamp
 	USING  
 		Mode (OVERLAPPING) 
-		Pattern ('A.A') 
+		Pattern ('A.A.A') 
 		Symbols ( 
 			TRUE as A
 		) 

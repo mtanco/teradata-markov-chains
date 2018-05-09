@@ -1,5 +1,6 @@
 /* Build markov chain off of entire data set */
 
+--"average" MC
 DROP TABLE mtanco.all_mc;
 CREATE TABLE mtanco.all_mc AS (
 	SELECT '[' || page1 || ', ' || page2 || ']' as path
@@ -26,6 +27,7 @@ CREATE TABLE mtanco.all_mc AS (
 	GROUP BY page1, page2
 ) WITH DATA NO PRIMARY INDEX ;
 
+-- Switch in cart MC
 DROP TABLE mtanco.switch_mc;
 CREATE TABLE mtanco.switch_mc AS (
 
@@ -59,6 +61,7 @@ CREATE TABLE mtanco.switch_mc AS (
 
 ) WITH DATA NO PRIMARY INDEX ;
 
+--Xbox in cart MC
 DROP TABLE mtanco.xbox_mc;
 CREATE TABLE mtanco.xbox_mc AS (
 

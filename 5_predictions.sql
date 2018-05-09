@@ -12,7 +12,7 @@ full outer join mtanco.switch_mc as s
 --After 3 steps, is 498073 session 2 more like xbox,switch, or "average" 
 	
 --First five rows 
-select top 5 
+select 
 	row_number() over (order by tstamp) as rn
 	,customerid
 	,sessionid
@@ -66,11 +66,11 @@ select
 	,switch_mc.cnt as switch_pct
 	,xbox_mc.cnt as xbox_pct
 from mtanco.session_pairs as customer
-left outer join mtanco.all_mc
+join mtanco.all_mc
 	on customer.page_pair = all_mc.path
-join mtanco.xbox_mc 
+left outer join mtanco.xbox_mc 
 	on customer.page_pair  = xbox_mc.path
-join mtanco.switch_mc
+left outer join mtanco.switch_mc
 	on customer.page_pair  = switch_mc.path
 order by rn
 
