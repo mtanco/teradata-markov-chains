@@ -1,4 +1,4 @@
-# Teradata nPath - Building First Order Markov Chains - Using nPath in Teradata 16.20
+# Building First Order Markov Chains - Using nPath in Teradata 16.20
 
 nPath, a path and pattern analytic function, now runs natively in Teradata 16.20. In addition to looking for common paths to and from key pages, we can use nPath to build first order markov chains in a sigle pass of the data. Markov chains allow us to understand the probability of moving from one event to another; we can take the product of probabilities for a given series of event to say "how likely" it was to occur in the model. We can also build multiple models for different segments of the data to say which segment a new series is most like, and which event we are most likely to see next. 
 
