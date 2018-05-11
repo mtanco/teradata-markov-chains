@@ -1,16 +1,20 @@
-/* Build markov chain off of entire data set */
+/* Michelle Tanco - 05/11/2018
+ * 3_mc_exmaples.sql
+ * 
+ * Build 3 markov chain models 
+ * 1. The "average" session, made from all sessions
+ * 2. Switch model, made from sessions with a Switch in the cart
+ * 3. Xbox model, made from sessions with an Xbox in the cart
+ * */
 
 --"average" MC
-DROP TABLE mtanco.all_mc;
-CREATE TABLE mtanco.all_mc AS (
+DROP TABLE all_mc;
+CREATE TABLE all_mc AS (
 	SELECT '[' || page1 || ', ' || page2 || ']' as path
 		, COUNT(*) * 1.00 / SUM(COUNT(*)) 
 			OVER( PARTITION BY page1 ) AS cnt
 	FROM nPath ( 
-		ON (
-			select *
-			from mtanco.mt_retail_npath
-		) AS "input1"
+		ON retail_base AS "input1"
 			PARTITION BY customerid,sessionid 
 			ORDER BY tstamp
 		USING  
@@ -28,8 +32,8 @@ CREATE TABLE mtanco.all_mc AS (
 ) WITH DATA NO PRIMARY INDEX ;
 
 -- Switch in cart MC
-DROP TABLE mtanco.switch_mc;
-CREATE TABLE mtanco.switch_mc AS (
+DROP TABLE switch_mc;
+CREATE TABLE switch_mc AS (
 
 	SELECT '[' || page1 || ', ' || page2 || ']' as path
 		, COUNT(*) * 1.00 / SUM(COUNT(*)) 
@@ -37,12 +41,14 @@ CREATE TABLE mtanco.switch_mc AS (
 	FROM nPath ( 
 		ON (
 			select *
-			from mtanco.mt_retail_npath
-			where customerid || '_' || sessionid in (
-				select distinct customerid || '_' || sessionid
-				from beehive.retail_console
-				where cart = 'SWITCH'
-			)
+			from retail_base as b
+			where exists (
+				select *
+				from retail_base as x
+				where x.cart = 'SWITCH'
+				and x.customerid = b.customerid
+				and x.sessionid = b.sessionid
+			)		
 		) AS "input1"
 			PARTITION BY customerid,sessionid 
 			ORDER BY tstamp
@@ -62,8 +68,8 @@ CREATE TABLE mtanco.switch_mc AS (
 ) WITH DATA NO PRIMARY INDEX ;
 
 --Xbox in cart MC
-DROP TABLE mtanco.xbox_mc;
-CREATE TABLE mtanco.xbox_mc AS (
+DROP TABLE xbox_mc;
+CREATE TABLE xbox_mc AS (
 
 	SELECT '[' || page1 || ', ' || page2 || ']' as path
 		, COUNT(*) * 1.00 / SUM(COUNT(*)) 
@@ -71,12 +77,15 @@ CREATE TABLE mtanco.xbox_mc AS (
 	FROM nPath ( 
 		ON (
 			select *
-			from mtanco.mt_retail_npath
-			where customerid || '_' || sessionid in (
-				select distinct customerid || '_' || sessionid
-				from beehive.retail_console
-				where cart = 'XBOX'
-			)
+			from retail_base as b
+			where exists (
+				select *
+				from retail_base as x
+				where x.cart = 'XBOX'
+				and x.customerid = b.customerid
+				and x.sessionid = b.sessionid
+			)	
+
 		) AS "input1"
 			PARTITION BY customerid,sessionid 
 			ORDER BY tstamp

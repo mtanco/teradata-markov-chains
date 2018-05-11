@@ -1,60 +1,78 @@
-/* Add a "page" at the start and end of each session 
- * to denote starting and stopping the session
+/* Michelle Tanco - 05/11/2018
+ * 1_add_enter_exit.sql
+ * 
+ * Build sample data set and
+ * for every session add a "Start" and "Stop" event
  * */
 
-DROP TABLE mtanco.mt_retail_npath;
-CREATE TABLE mtanco.mt_retail_npath AS (
-	
-	select customerid, sessionid, tstamp, page
-	from beehive.retail_console
+--Create statement for sample data, load into this table
+show table retail_base;
+CREATE MULTISET TABLE retail_base ,FALLBACK ,
+     NO BEFORE JOURNAL,
+     NO AFTER JOURNAL,
+     CHECKSUM = DEFAULT,
+     DEFAULT MERGEBLOCKRATIO,
+     MAP = TD_MAP1
+     (
+      customerid INTEGER,
+      sessionid INTEGER,
+      tstamp TIMESTAMP(6),
+      page VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC,
+      cart VARCHAR(20) CHARACTER SET LATIN NOT CASESPECIFIC)
+PRIMARY INDEX ( customerid );
 
-) WITH DATA; 
+--LOAD DATA AND THEN DO THE NEXT STEPS
 
-insert into mtanco.mt_retail_npath
+--Add Start before first page in session
+insert into mtanco.retail_base
 select customerid, sessionid
 	, min(tstamp) - interval '1' second as tstamp
 	, 'ENTER' as page
-from beehive.retail_console
+	, null as cart
+from retail_base
 group by customerid, sessionid;
 
-insert into mtanco.mt_retail_npath
+--Add End before first page in session
+insert into retail_base
 select customerid, sessionid
 	, max(tstamp) + interval '1' second as tstamp
 	, 'EXIT' as page
-from beehive.retail_console
+	, null as cart
+from retail_base
 group by customerid, sessionid;
 
-
 select top 25 * 
-from mtanco.mt_retail_npath
+from retail_base
 order by 1,2,3;
 
--- customerid sessionid tstamp                     page         
--- ---------- --------- -------------------------- ------------ 
---     350001         0 2017-04-10 19:20:41.000000 ENTER       
---     350001         0 2017-04-10 19:20:42.000000 VIEW PRODUCT
---     350001         0 2017-04-10 19:22:14.000000 SEARCH      
---     350001         0 2017-04-10 19:23:11.000000 VIEW PRODUCT
---     350001         0 2017-04-10 19:24:03.000000 SEARCH      
---     350001         0 2017-04-10 19:26:56.000000 SEARCH      
---     350001         0 2017-04-10 19:29:54.000000 SEARCH      
---     350001         0 2017-04-10 19:31:07.000000 VIEW PRODUCT
---     350001         0 2017-04-10 19:32:47.000000 VIEW PRODUCT
---     350001         0 2017-04-10 19:34:35.000000 VIEW PRODUCT
---     350001         0 2017-04-10 19:36:28.000000 VIEW PRODUCT
---     350001         0 2017-04-10 19:37:05.000000 SEARCH      
---     350001         0 2017-04-10 19:37:50.000000 VIEW PRODUCT
---     350001         0 2017-04-10 19:39:44.000000 VIEW PRODUCT
---     350001         0 2017-04-10 19:41:34.000000 VIEW PRODUCT
---     350001         0 2017-04-10 19:44:29.000000 SEARCH      
---     350001         0 2017-04-10 19:46:46.000000 VIEW PRODUCT
---     350001         0 2017-04-10 19:48:55.000000 SEARCH      
---     350001         0 2017-04-10 19:50:50.000000 VIEW PRODUCT
---     350001         0 2017-04-10 19:52:11.000000 SEARCH      
---     350001         0 2017-04-10 19:52:12.000000 EXIT        
---     350001         1 2017-04-28 05:58:28.000000 ENTER       
---     350001         1 2017-04-28 05:58:29.000000 HOME PAGE   
---     350001         1 2017-04-28 06:00:06.000000 SEARCH      
---     350001         1 2017-04-28 06:02:10.000000 SEARCH      
+-- customerid sessionid tstamp                     page         cart   
+-- ---------- --------- -------------------------- ------------ ------ 
+--     350109         0 2017-01-03 14:57:49.000000 ENTER        null  
+--     350109         0 2017-01-03 14:57:50.000000 VIEW PRODUCT null  
+--     350109         0 2017-01-03 15:00:15.000000 ADD TO CART  SWITCH
+--     350109         0 2017-01-03 15:01:03.000000 VIEW PRODUCT SWITCH
+--     350109         0 2017-01-03 15:02:41.000000 REVIEW CART  SWITCH
+--     350109         0 2017-01-03 15:03:49.000000 SEARCH       null  
+--     350109         0 2017-01-03 15:05:40.000000 SEARCH       null  
+--     350109         0 2017-01-03 15:06:59.000000 SEARCH       null  
+--     350109         0 2017-01-03 15:09:59.000000 VIEW PRODUCT null  
+--     350109         0 2017-01-03 15:10:32.000000 VIEW PRODUCT null  
+--     350109         0 2017-01-03 15:11:47.000000 VIEW PRODUCT null  
+--     350109         0 2017-01-03 15:13:44.000000 SEARCH       null  
+--     350109         0 2017-01-03 15:14:29.000000 SEARCH       null  
+--     350109         0 2017-01-03 15:15:04.000000 SEARCH       null  
+--     350109         0 2017-01-03 15:17:02.000000 VIEW PRODUCT null  
+--     350109         0 2017-01-03 15:18:38.000000 VIEW PRODUCT null  
+--     350109         0 2017-01-03 15:18:53.000000 SEARCH       null  
+--     350109         0 2017-01-03 15:21:50.000000 SEARCH       null  
+--     350109         0 2017-01-03 15:22:37.000000 SEARCH       null  
+--     350109         0 2017-01-03 15:24:29.000000 VIEW PRODUCT null  
+--     350109         0 2017-01-03 15:25:07.000000 VIEW PRODUCT null  
+--     350109         0 2017-01-03 15:27:34.000000 VIEW PRODUCT null  
+--     350109         0 2017-01-03 15:29:12.000000 VIEW PRODUCT null  
+--     350109         0 2017-01-03 15:29:35.000000 VIEW PRODUCT null  
+--     350109         0 2017-01-03 15:31:26.000000 SEARCH       null  
+
+
 
 
