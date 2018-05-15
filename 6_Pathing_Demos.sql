@@ -3,7 +3,7 @@ select * from all_path;
 
 --name=item_gone
 SELECT 
-	,page_path as path
+	page_path as path
 	,count(*) as cnt
 FROM nPath ( 
 	ON retail_base AS "input1"
